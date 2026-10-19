@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Manage shows{% endblock %}
+{% block content %}
+<h1>Manage shows</h1>
+{% include "_admin_nav.html" %}
+<div class="panel mb">
+  <h3>Schedule a show</h3>
+  <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="grid2">
+      <div class="field"><label for="m">Movie</label><select id="m" name="movie_id" required>{% for m in movies %}<option value="{{ m.movie_id }}">{{ m.title }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="th">Theatre</label><select id="th" name="theatre_id" required>{% for t in theatres %}<option value="{{ t.theatre_id }}">{{ t.name }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="dt">Date</label><input id="dt" type="date" name="show_date" min="{{ today }}" value="{{ today }}" required></div>
+      <div class="field"><label for="tm">Start time</label><input id="tm" type="time" name="start_time" value="18:00" required></div>
+      <div class="field"><label for="pc">Base ticket price</label><input id="pc" type="number" name="ticket_price" min="1" step="0.01" value="250" required></div>
+    </div>
+    <button class="btn" type="submit">Schedule show</button>
+  </form>
+</div>
+<div class="panel tscroll"><table class="tbl"><thead><tr><th>#</th><th>Movie</th><th>Theatre</th><th>When</th><th>Price</th><th>Sold</th><th></th></tr></thead><tbody>
+{% for s in shows %}
+<tr><td>{{ s.show_id }}</td><td>{{ s.title }}</td><td>{{ s.theatre }}</td><td>{{ s.show_date|dfmt }}, {{ s.start_time|tfmt }}</td><td>{{ s.ticket_price|inr }}</td><td>{{ s.sold }}</td>
+<td class="right"><form method="post" action="{{ url_for('admin_show_delete', show_id=s.show_id) }}" onsubmit="return confirm('Delete this show?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn red sm">Delete</button></form></td></tr>
+{% else %}<tr><td colspan="7" class="muted">No upcoming shows. Schedule one above.</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

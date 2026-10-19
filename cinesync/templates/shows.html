@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{{ movie.title }}{% endblock %}
+{% block content %}
+<div class="mb">
+  <h1>{{ movie.title }}</h1>
+  <div class="chips mb"><span class="chip gold">{{ movie.genre or 'Film' }}</span><span class="chip">{{ movie.language }}</span>
+    <span class="chip">{{ movie.duration_min }} min</span><span class="chip gold">{{ movie.rating }} / 10</span></div>
+  <p class="muted" style="max-width:60ch">{{ movie.description }}</p>
+</div>
+{% for day, items in days.items() %}
+<section class="day">
+  <h3>{{ day|dfmt }}</h3>
+  <div class="slots">
+    {% for s in items %}
+    {% set pct = (100 * s.sold / s.total)|round|int if s.total else 0 %}
+    <a class="slot" href="{{ url_for('seats', show_id=s.show_id) }}">
+      <div class="time">{{ s.start_time|tfmt }}</div>
+      <div>{{ s.theatre }}</div><div class="small muted">{{ s.location }}</div>
+      <div class="meter"><i class="{{ 'hot' if pct>=80 }}" style="width:{{ pct }}%"></i></div>
+      <div class="row between small"><span class="muted">{{ s.total - s.sold }} seats left</span><span class="rating">from {{ s.ticket_price|inr }}</span></div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% else %}
+<div class="panel center"><h2>No upcoming shows yet</h2><p class="muted">Check back soon, or pick another movie.</p><a class="btn" href="{{ url_for('home') }}">Browse movies</a></div>
+{% endfor %}
+{% endblock %}

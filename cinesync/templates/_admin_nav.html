@@ -1,0 +1,6 @@
+<div class="subnav">
+  <a class="btn {{ '' if request.endpoint=='admin' else 'ghost' }} sm" href="{{ url_for('admin') }}">Reports</a>
+  <a class="btn {{ '' if request.endpoint=='admin_movies' else 'ghost' }} sm" href="{{ url_for('admin_movies') }}">Movies</a>
+  <a class="btn {{ '' if request.endpoint=='admin_theatres' else 'ghost' }} sm" href="{{ url_for('admin_theatres') }}">Theatres</a>
+  <a class="btn {{ '' if request.endpoint=='admin_shows' else 'ghost' }} sm" href="{{ url_for('admin_shows') }}">Shows</a>
+</div>

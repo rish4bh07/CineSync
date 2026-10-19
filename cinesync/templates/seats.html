@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Choose seats{% endblock %}
+{% block content %}
+<div class="row between">
+  <div><h1 style="margin-bottom:.2em">{{ show.title }}</h1>
+  <p class="muted">{{ show.theatre }}, {{ show.location }}<br>{{ show.show_date|dfmt }} at {{ show.start_time|tfmt }}</p></div>
+  <div class="small muted right">{{ available }} of {{ total }} seats free<br>Regular {{ regular|inr }}, Premium {{ premium|inr }}</div>
+</div>
+
+{% if started %}
+<div class="note bad">This show has already started, so booking is closed.</div>
+{% endif %}
+
+<form method="post" action="{{ url_for('book', show_id=show.show_id) }}" id="bookForm" data-max="{{ max_seats }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="screen">Screen this way</div>
+  <div class="hall"><div class="hall-in">
+    {% for label, row in layout.items() %}
+    <div class="srow"><span class="rl">{{ label }}</span>
+      {% for s in row %}
+      <label class="seat {{ 'prem' if s.seat_type=='PREMIUM' }} {{ 'taken' if s.booked }}" title="{{ s.seat_number }}{{ ' (premium)' if s.seat_type=='PREMIUM' }}{{ ' - taken' if s.booked }}">
+        <input type="checkbox" name="seat_ids" value="{{ s.seat_id }}" data-price="{{ (premium if s.seat_type=='PREMIUM' else regular) }}" data-name="{{ s.seat_number }}"
+               {% if s.booked or started %}disabled{% endif %} aria-label="Seat {{ s.seat_number }}">
+        <span>{{ s.seat_number }}</span>
+      </label>
+      {% endfor %}
+      <span class="rl">{{ label }}</span>
+    </div>
+    {% endfor %}
+  </div></div>
+  <div class="legend">
+    <span><i class="sw"></i>Regular</span><span><i class="sw" style="border-color:var(--brass-d)"></i>Premium</span>
+    <span><i class="sw" style="background:var(--brass);border-color:var(--brass)"></i>Your pick</span><span><i class="sw" style="background:var(--velvet-3);border-color:var(--velvet-3)"></i>Taken</span>
+  </div>
+
+  <div class="checkout">
+    <div><div class="small muted" id="picked">No seats selected (up to {{ max_seats }})</div><div class="total" id="total">{{ 0|inr }}</div></div>
+    <div class="row">
+      <div><label for="pm" class="small">Pay with (simulated)</label>
+        <select id="pm" name="payment_mode">{% for m in modes %}<option>{{ m }}</option>{% endfor %}</select></div>
+      <button class="btn" id="payBtn" type="submit" disabled>Pay and book</button>
+    </div>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+(function(){
+  const form=document.getElementById('bookForm'), max=+form.dataset.max;
+  const boxes=[...form.querySelectorAll('input[name=seat_ids]')];
+  function update(){
+    const on=boxes.filter(b=>b.checked);
+    const total=on.reduce((s,b)=>s+parseFloat(b.dataset.price),0);
+    document.getElementById('picked').textContent=on.length?on.map(b=>b.dataset.name).join(', '):'No seats selected (up to '+max+')';
+    document.getElementById('total').textContent='\u20b9'+total.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+    document.getElementById('payBtn').disabled=!on.length;
+  }
+  boxes.forEach(b=>b.addEventListener('change',()=>{
+    if(boxes.filter(x=>x.checked).length>max){b.checked=false;alert('You can book up to '+max+' seats at a time.');}
+    update();
+  }));
+  update();
+})();
+</script>
+{% endblock %}

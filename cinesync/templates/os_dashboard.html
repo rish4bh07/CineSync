@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}OS lab{% endblock %}
+{% block content %}
+<h1>OS lab</h1>
+<p class="muted" style="max-width:68ch">Booking requests are modelled as processes. Run the scheduler, watch two requests fight for one seat, then trigger and break a deadlock. The real booking still runs as a MySQL transaction; this lab explains the operating-system ideas behind it.</p>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" aria-selected="true" data-pane="p-sched">Process scheduler</button>
+  <button class="tab" role="tab" aria-selected="false" data-pane="p-sync">Seat locking</button>
+  <button class="tab" role="tab" aria-selected="false" data-pane="p-dead">Deadlock</button>
+  <button class="tab" role="tab" aria-selected="false" data-pane="p-res">Resource monitor</button>
+</div>
+
+<!-- Scheduler + process manager -->
+<section class="pane" id="p-sched">
+  <div class="panel">
+    <div class="row">
+      <div><label for="algo">Algorithm</label>
+        <select id="algo"><option value="FCFS">First come, first served</option><option value="SJF">Shortest job first</option><option value="PRIORITY">Priority (1 is highest)</option><option value="RR">Round robin</option></select></div>
+      <div id="qWrap" hidden><label for="quantum">Time quantum</label><input id="quantum" type="number" min="1" value="2" style="width:90px"></div>
+    </div>
+    <div class="tscroll mt"><table class="tbl"><thead><tr><th>Process</th><th>Arrival</th><th>Burst</th><th>Priority</th><th></th></tr></thead><tbody id="procRows"></tbody></table></div>
+    <div class="row mt"><button class="btn ghost sm" id="addProc" type="button">Add process</button>
+      <button class="btn" id="runSched" type="button">Run scheduler</button>
+      <button class="btn ghost" id="runAll" type="button">Compare all four</button></div>
+    <div class="err" id="schedErr" role="alert"></div>
+  </div>
+  <div id="schedOut"></div>
+</section>
+
+<!-- Synchronisation -->
+<section class="pane" id="p-sync" hidden>
+  <div class="panel">
+    <p class="muted small">Each request reads a seat, holds it for some time units, then writes the booking. Try P1 and P2 on seat A5 with and without the lock.</p>
+    <div class="tscroll"><table class="tbl"><thead><tr><th>Process</th><th>Seat</th><th>Arrives at</th><th>Holds for</th><th></th></tr></thead><tbody id="syncRows"></tbody></table></div>
+    <div class="row mt">
+      <button class="btn ghost sm" id="addSync" type="button">Add request</button>
+      <button class="btn" id="runLock" type="button">Run with seat lock</button>
+      <button class="btn red" id="runNoLock" type="button">Run without lock</button>
+    </div>
+    <div class="err" id="syncErr" role="alert"></div>
+  </div>
+  <div id="syncOut"></div>
+</section>
+
+<!-- Deadlock -->
+<section class="pane" id="p-dead" hidden>
+  <div class="cols">
+    <div class="panel">
+      <p class="muted small">One statement per line: <code>P1 holds A5</code> or <code>P2 requests A5</code>. A process that requests a seat held by another waits for it.</p>
+      <label for="dl">Locks</label>
+      <textarea id="dl" rows="7" spellcheck="false"></textarea>
+      <div class="row mt">
+        <button class="btn" id="runDead" type="button">Detect deadlock</button>
+        <button class="btn ghost sm" id="presetDead" type="button">Load deadlock</button>
+        <button class="btn ghost sm" id="presetSafe" type="button">Load safe case</button>
+      </div>
+      <div class="err" id="deadErr" role="alert"></div>
+    </div>
+    <div class="panel"><h3>Wait-for graph</h3><svg id="graphSvg" class="graph" viewBox="0 0 400 260" role="img" aria-label="Wait-for graph"></svg></div>
+  </div>
+  <div id="deadOut"></div>
+</section>
+
+<!-- Resource monitor -->
+<section class="pane" id="p-res" hidden>
+  <div class="panel">
+    <div class="row between"><h3 style="margin:0">Seat allocation per show</h3>
+      <div class="row"><label style="margin:0"><input type="checkbox" id="auto" style="width:auto"> Refresh every 5 s</label><button class="btn ghost sm" id="refreshRes" type="button">Refresh now</button></div></div>
+    <p class="small muted" id="resMeta"></p>
+    <div id="resOut"></div>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/os.js') }}"></script>{% endblock %}

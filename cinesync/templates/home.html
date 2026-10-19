@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Now showing{% endblock %}
+{% block content %}
+<section class="marquee">
+  <h1>Pick a film. Pick your seat.</h1>
+  <p>Every seat is locked while you book it, so the one you choose is the one you get.</p>
+  <form class="search" method="get">
+    <input type="search" name="q" value="{{ search }}" placeholder="Search by title" aria-label="Search by title">
+    <select name="genre" aria-label="Genre">
+      <option value="">All genres</option>
+      {% for g in genres %}<option value="{{ g }}" {% if g==genre %}selected{% endif %}>{{ g }}</option>{% endfor %}
+    </select>
+    <button class="btn" type="submit">Search</button>
+  </form>
+</section>
+
+{% if movies %}
+<div class="cards">
+  {% for m in movies %}
+  <article class="mcard">
+    <div class="poster" style="--h: {{ (m.movie_id * 47) % 360 }}">{{ m.title }}</div>
+    <div class="mbody">
+      <div class="row between"><span class="rating">{{ m.rating }} / 10</span><span class="small muted">{{ m.duration_min // 60 }}h {{ m.duration_min % 60 }}m</span></div>
+      <div class="chips"><span class="chip gold">{{ m.genre or 'Film' }}</span><span class="chip">{{ m.language }}</span></div>
+      <p class="small muted" style="margin:.4rem 0 .6rem">{{ m.description }}</p>
+      <div style="margin-top:auto">
+        {% if m.upcoming %}<a class="btn" href="{{ url_for('shows', movie_id=m.movie_id) }}">See showtimes</a>
+        {% else %}<span class="chip">No upcoming shows</span>{% endif %}
+      </div>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="panel center"><h2>No movies match that search</h2><p class="muted">Clear the filters to see everything that is playing.</p><a class="btn" href="{{ url_for('home') }}">Clear filters</a></div>
+{% endif %}
+{% endblock %}

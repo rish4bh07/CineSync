@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Create account{% endblock %}
+{% block content %}
+<div class="panel narrow">
+  <h2>Create your account</h2>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field"><label for="name">Full name</label><input id="name" name="name" required autofocus></div>
+    <div class="field"><label for="email">Email</label><input id="email" type="email" name="email" required></div>
+    <div class="field"><label for="phone">Phone (optional)</label><input id="phone" name="phone" inputmode="tel"></div>
+    <div class="field"><label for="password">Password (6 characters or more)</label><input id="password" type="password" name="password" minlength="6" required></div>
+    <button class="btn" type="submit">Create account</button>
+  </form>
+  <p class="small muted mt">Already registered? <a href="{{ url_for('login') }}">Log in</a></p>
+</div>
+{% endblock %}

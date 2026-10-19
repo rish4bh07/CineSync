@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf" content="{{ csrf_token() }}">
+  <title>{% block title %}Book tickets{% endblock %} | CineSync</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header class="top"><div class="in">
+  <a class="brand" href="{{ url_for('home') }}">Cine<b>Sync</b></a>
+  <nav>
+    <a href="{{ url_for('home') }}" {% if request.endpoint=='home' %}class="on"{% endif %}>Movies</a>
+    {% if session.user_id %}
+      <a href="{{ url_for('my_bookings') }}" {% if request.endpoint=='my_bookings' %}class="on"{% endif %}>My bookings</a>
+      <a href="{{ url_for('os_dashboard') }}" {% if request.endpoint=='os_dashboard' %}class="on"{% endif %}>OS lab</a>
+      {% if session.role=='ADMIN' %}<a href="{{ url_for('admin') }}">Admin</a>{% endif %}
+    {% endif %}
+  </nav>
+  {% if session.user_id %}
+    <a class="who" href="{{ url_for('profile') }}">{{ session.name }}</a>
+    <a class="btn ghost sm" href="{{ url_for('logout') }}">Log out</a>
+  {% else %}
+    <a class="btn ghost sm" href="{{ url_for('login') }}">Log in</a>
+    <a class="btn sm" href="{{ url_for('register') }}">Create account</a>
+  {% endif %}
+</div></header>
+<main class="wrap">
+  {% with msgs = get_flashed_messages() %}{% for m in msgs %}<div class="flash" role="status">{{ m }}</div>{% endfor %}{% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<footer>CineSync: Flask, MySQL and an operating-system simulator. Payments are simulated.</footer>
+{% block scripts %}{% endblock %}
+</body>
+</html>

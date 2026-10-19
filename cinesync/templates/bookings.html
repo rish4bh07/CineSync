@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}My bookings{% endblock %}
+{% block content %}
+<h1>My bookings</h1>
+{% if bookings %}
+<div class="panel tscroll"><table class="tbl">
+  <thead><tr><th>#</th><th>Movie</th><th>When</th><th>Theatre</th><th>Seat</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for b in bookings %}
+  <tr>
+    <td>{{ b.booking_id }}</td><td>{{ b.title }}</td><td>{{ b.show_date|dfmt }}, {{ b.start_time|tfmt }}</td><td>{{ b.theatre }}</td>
+    <td><b>{{ b.seat_number }}</b></td><td>{{ b.amount|inr }}</td>
+    <td>{% if b.status=='CONFIRMED' %}<span class="chip ok">Confirmed</span>{% else %}<span class="chip bad">Cancelled</span>{% if b.payment_status %} <span class="chip">{{ b.payment_status|replace('_',' ')|title }}</span>{% endif %}{% endif %}</td>
+    <td class="right row" style="justify-content:flex-end">
+      <a class="btn ghost sm" href="{{ url_for('ticket', booking_id=b.booking_id) }}">Ticket</a>
+      {% if b.can_cancel %}
+      <form method="post" action="{{ url_for('cancel', booking_id=b.booking_id) }}" onsubmit="return confirm('Cancel booking #{{ b.booking_id }}? Your refund will be marked pending.')">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn red sm" type="submit">Cancel</button></form>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody></table></div>
+{% else %}
+<div class="panel center"><h2>No bookings yet</h2><p class="muted">Your tickets will appear here after you book a seat.</p><a class="btn" href="{{ url_for('home') }}">Find a movie</a></div>
+{% endif %}
+{% endblock %}

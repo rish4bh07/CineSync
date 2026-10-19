@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Ticket #{{ b.booking_id }}{% endblock %}
+{% block content %}
+<div class="stub">
+  <div class="main">
+    <span class="stamp">{{ 'ADMIT ONE' if b.status=='CONFIRMED' else 'CANCELLED' }}</span>
+    <h1 style="margin-top:.8rem">{{ b.title }}</h1>
+    <dl>
+      <dt>Theatre</dt><dd>{{ b.theatre }}, {{ b.location }}</dd>
+      <dt>Date</dt><dd>{{ b.show_date|dfmt }}</dd>
+      <dt>Time</dt><dd>{{ b.start_time|tfmt }} ({{ b.duration_min }} min)</dd>
+      <dt>Guest</dt><dd>{{ b.user_name }}</dd>
+      <dt>Amount</dt><dd>{{ b.amount|inr }}, {{ (b.payment_mode or '')|title }} ({{ (b.payment_status or '')|replace('_',' ')|title }})</dd>
+      <dt>Transaction</dt><dd>{{ b.transaction_id }}</dd>
+    </dl>
+  </div>
+  <div class="side">
+    <div class="small" style="color:#7a6650">Seat</div>
+    <div class="seatbig">{{ b.seat_number }}</div>
+    <div class="small">{{ b.seat_type|title }}</div>
+    <div class="barcode" aria-hidden="true"></div>
+    <div class="small">Booking #{{ '%06d'|format(b.booking_id) }}</div>
+  </div>
+</div>
+<div class="row noprint" style="justify-content:center">
+  <button class="btn" onclick="window.print()">Print ticket</button>
+  <a class="btn ghost" href="{{ url_for('my_bookings') }}">All bookings</a>
+</div>
+{% endblock %}

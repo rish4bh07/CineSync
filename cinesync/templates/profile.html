@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<h1>Your profile</h1>
+<div class="stats">
+  <div class="stat"><b>{{ stats.total }}</b>Tickets booked</div>
+  <div class="stat"><b>{{ stats.active|int }}</b>Active tickets</div>
+  <div class="stat"><b>{{ stats.spent|inr }}</b>Spent on active tickets</div>
+</div>
+<div class="cols">
+  <div class="panel">
+    <h3>Details</h3>
+    <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="details">
+      <div class="field"><label>Email</label><input value="{{ user.email }}" disabled></div>
+      <div class="field"><label for="name">Name</label><input id="name" name="name" value="{{ user.name }}" required></div>
+      <div class="field"><label for="phone">Phone</label><input id="phone" name="phone" value="{{ user.phone or '' }}"></div>
+      <button class="btn" type="submit">Save details</button></form>
+  </div>
+  <div class="panel">
+    <h3>Change password</h3>
+    <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="password">
+      <div class="field"><label for="cp">Current password</label><input id="cp" type="password" name="current_password" required></div>
+      <div class="field"><label for="np">New password</label><input id="np" type="password" name="new_password" minlength="6" required></div>
+      <button class="btn" type="submit">Change password</button></form>
+  </div>
+</div>
+<div class="panel mt">
+  <h3>Notifications</h3>
+  <p class="small muted">Messages CineSync would send by email. They are stored here in the demo.</p>
+  {% if notes %}<ul class="log">{% for n in notes %}<li class="COMPLETED"><b>{{ n.subject }}</b>{{ n.message }} <span class="muted small">{{ n.created_at|dtfmt }}</span></li>{% endfor %}</ul>
+  {% else %}<p class="muted">Nothing yet. Book a seat to see a confirmation here.</p>{% endif %}
+</div>
+{% endblock %}

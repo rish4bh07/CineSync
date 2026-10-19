@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Manage movies{% endblock %}
+{% block content %}
+<h1>Manage movies</h1>
+{% include "_admin_nav.html" %}
+<div class="panel mb">
+  <h3>Add a movie</h3>
+  <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="grid2">
+      <div class="field"><label for="t">Title</label><input id="t" name="title" required></div>
+      <div class="field"><label for="g">Genre</label><input id="g" name="genre"></div>
+      <div class="field"><label for="l">Language</label><input id="l" name="language" value="English"></div>
+      <div class="field"><label for="d">Duration (minutes)</label><input id="d" type="number" name="duration_min" min="1" required></div>
+      <div class="field"><label for="r">Rating (0 to 10)</label><input id="r" type="number" name="rating" min="0" max="10" step="0.1" value="7.0"></div>
+    </div>
+    <div class="field"><label for="ds">Description</label><textarea id="ds" name="description"></textarea></div>
+    <button class="btn" type="submit">Add movie</button>
+  </form>
+</div>
+<div class="panel tscroll"><table class="tbl"><thead><tr><th>#</th><th>Title</th><th>Genre</th><th>Language</th><th>Length</th><th>Rating</th><th></th></tr></thead><tbody>
+{% for m in movies %}
+<tr><td>{{ m.movie_id }}</td><td>{{ m.title }}</td><td>{{ m.genre }}</td><td>{{ m.language }}</td><td>{{ m.duration_min }} min</td><td>{{ m.rating }}</td>
+<td class="right"><form method="post" action="{{ url_for('admin_movie_delete', movie_id=m.movie_id) }}" onsubmit="return confirm('Delete {{ m.title|e }}?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn red sm">Delete</button></form></td></tr>
+{% endfor %}</tbody></table></div>
+{% endblock %}

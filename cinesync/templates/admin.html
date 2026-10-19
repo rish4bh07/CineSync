@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Admin reports{% endblock %}
+{% block content %}
+<h1>Admin dashboard</h1>
+{% include "_admin_nav.html" %}
+<div class="stats">
+  <div class="stat"><b>{{ stats.revenue|inr }}</b>Revenue (confirmed)</div>
+  <div class="stat"><b>{{ stats.confirmed }}</b>Confirmed tickets</div>
+  <div class="stat"><b>{{ stats.cancelled }}</b>Cancelled tickets</div>
+  <div class="stat"><b>{{ stats.refunds|inr }}</b>Refunds pending</div>
+  <div class="stat"><b>{{ stats.users }}</b>Customers</div>
+  <div class="stat"><b>{{ stats.movies }}</b>Movies</div>
+  <div class="stat"><b>{{ stats.shows }}</b>Upcoming shows</div>
+</div>
+<div class="cols">
+  <div class="panel">
+    <h3>Revenue by movie</h3>
+    {% for r in by_movie %}
+    <div class="bar"><span>{{ r.title }}</span><div class="meter"><i style="width:{{ (100 * r.revenue / top)|round|int }}%"></i></div><span class="right">{{ r.revenue|inr }} <span class="muted small">({{ r.tickets }})</span></span></div>
+    {% else %}<p class="muted">No sales yet.</p>{% endfor %}
+  </div>
+  <div class="panel">
+    <h3>Occupancy of upcoming shows</h3>
+    {% for o in occupancy %}
+    {% set pct = (100 * o.sold / o.total)|round|int if o.total else 0 %}
+    <div class="bar"><span>{{ o.title }}<br><span class="muted small">{{ o.theatre }}, {{ o.show_date|dfmt }} {{ o.start_time|tfmt }}</span></span>
+      <div class="meter"><i class="{{ 'hot' if pct>=80 }}" style="width:{{ pct }}%"></i></div><span class="right">{{ o.sold }}/{{ o.total }}</span></div>
+    {% else %}<p class="muted">No upcoming shows.</p>{% endfor %}
+  </div>
+</div>
+<div class="panel mt tscroll">
+  <h3>Latest bookings</h3>
+  <table class="tbl"><thead><tr><th>#</th><th>Customer</th><th>Movie</th><th>Seat</th><th>Amount</th><th>Status</th><th>Booked at</th><th></th></tr></thead><tbody>
+  {% for b in recent %}
+  <tr><td>{{ b.booking_id }}</td><td>{{ b.name }}</td><td>{{ b.title }}</td><td>{{ b.seat_number }}</td><td>{{ b.amount|inr }}</td>
+    <td><span class="chip {{ 'ok' if b.status=='CONFIRMED' else 'bad' }}">{{ b.status|title }}</span></td><td class="small muted">{{ b.booking_time|dtfmt }}</td>
+    <td class="right">{% if b.status=='CONFIRMED' %}<form method="post" action="{{ url_for('cancel', booking_id=b.booking_id) }}" onsubmit="return confirm('Cancel booking #{{ b.booking_id }}?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn red sm">Cancel</button></form>{% endif %}</td></tr>
+  {% else %}<tr><td colspan="8" class="muted">No bookings yet.</td></tr>{% endfor %}
+  </tbody></table>
+</div>
+{% endblock %}
